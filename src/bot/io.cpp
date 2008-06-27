@@ -3,52 +3,79 @@
 namespace bot
 {
 
-int IO::readInt( unsigned int index )
+vmInt IO::readInt( unsigned int index )
 {
-	unsigned int size = sizeof(int);
-	int data[size];
-	for ( unsigned int i = 0; i < size; i++ ) data[i] = readChar(index+i);
-	return (int)data[0];
+	vmByte data[sizeof(vmInt)];
+	for ( unsigned int i = 0; i < sizeof(vmInt); i++ ) data[i] = readByte(index+i);
+	int* i = reinterpret_cast<int*>(data);
+	return *i;
 }
 
 
-unsigned int IO::readUInt( unsigned int index )
+vmUInt IO::readUInt( unsigned int index )
 {
-	unsigned int size = sizeof(unsigned int);
-	int data[size];
-	for ( unsigned int i = 0; i < size; i++ ) data[i] = readChar(index+i);
-	return (unsigned int)data[0];
+	vmByte data[sizeof(vmUInt)];
+	for ( unsigned int i = 0; i < sizeof(vmUInt); i++ ) data[i] = readByte(index+i);
+	unsigned int* ui = reinterpret_cast<vmUInt*>(data);
+	return *ui;
 }
 
 
-float IO::readFloat( unsigned int index )
+vmFloat IO::readFloat( unsigned int index )
 {
-	unsigned int size = sizeof(float);
-	int data[size];
-	for ( unsigned int i = 0; i < size; i++ ) data[i] = readChar(index+i);
-	return (float)data[0];
+	char data[sizeof(vmFloat)];
+	for ( unsigned int i = 0; i < sizeof(vmFloat); i++ ) data[i] = readByte(index+i);
+	vmFloat* f = reinterpret_cast<vmFloat*>(data);
+	return *f;
+}
+
+
+vmBool IO::readBool( unsigned int index )
+{
+	vmByte by = readByte(index);
+	vmBool* b = reinterpret_cast<vmBool*>(&by);
+	return *b;
+}
+
+
+vmSByte IO::readSByte( unsigned int index )
+{
+	vmByte by = readByte(index);
+	vmSByte* b = reinterpret_cast<vmSByte*>(&by);
+	return *b;
 }
 
 
 void IO::writeInt( unsigned int index, const int& data )
 {
-	unsigned int size = sizeof(int);
-	for ( unsigned int i = 0; i < size; i++ ) writeChar(index+i, ((char*)&data)[i] );
+	const vmByte* c = reinterpret_cast<const vmByte*>(&data);
+	for ( unsigned int i = 0; i < sizeof(data); i++ ) writeByte(index+i, c[i] );
 }
 
 
 void IO::writeUInt( unsigned int index, const unsigned int& data )
 {
-	unsigned int size = sizeof(unsigned int);
-	const char* c = reinterpret_cast<const char*>(&data);
-	for ( unsigned int i = 0; i < size; i++ ) writeChar(index+i, c[i] );
+	const vmByte* c = reinterpret_cast<const vmByte*>(&data);
+	for ( unsigned int i = 0; i < sizeof(data); i++ ) writeByte(index+i, c[i] );
 }
 
 
-void IO::writeFloat( unsigned int index, const float& data )
+void IO::writeFloat( unsigned int index, const vmFloat& data )
 {
-	unsigned int size = sizeof(float);
-	for ( unsigned int i = 0; i < size; i++ ) writeChar(index+i, ((char*)&data)[i] );
+	const vmByte* c = reinterpret_cast<const vmByte*>(&data);
+	for ( unsigned int i = 0; i < sizeof(data); i++ ) writeByte(index+i, c[i] );
+}
+
+void IO::writeBool( unsigned int index, const vmBool& data )
+{
+	const vmByte* c = reinterpret_cast<const vmByte*>(&data);
+	writeByte(index, *c );
+}
+
+void IO::writeSByte( unsigned int index, const vmSByte& data )
+{
+	const vmByte* c = reinterpret_cast<const vmByte*>(&data);
+	writeByte(index, *c );
 }
 
 }
