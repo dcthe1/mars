@@ -1,9 +1,10 @@
 #include "memory.h"
+#include "bot/bot.h"
 
 #include <cmath>
 #include <sstream>
 
-namespace bot
+namespace vm
 {
 
 Memory::Memory( unsigned int size )
@@ -20,15 +21,20 @@ Memory::~Memory()
 	delete data;
 }
 
+int Memory::update( bot::Bot& bot )
+{
+  return 0;
+}
 
-vmByte Memory::readByte( unsigned int index ) throw ( std::invalid_argument )
+
+vmByte Memory::readByte( const unsigned int& index ) throw ( std::invalid_argument )
 {
 	if ( index >= m_size ) throw std::invalid_argument("index >= size");
 	return data[index];
 }
 
 
-void Memory::writeByte( unsigned int index, const vmByte& indata ) throw ( std::invalid_argument )
+void Memory::writeByte( const unsigned int& index, const vmByte& indata ) throw ( std::invalid_argument )
 {
 	if ( index >= m_size ) throw std::invalid_argument("index >= size");
 	data[index] = indata;
@@ -37,7 +43,18 @@ void Memory::writeByte( unsigned int index, const vmByte& indata ) throw ( std::
 
 void Memory::clear()
 {
-	for ( unsigned int i = 0; i < m_size; i++ ) data[i] = 0;
+	for ( int i = -15; i < (int)m_size+15; i++ ) data[i] = 0;
+}
+
+
+void Memory::clearArea(unsigned int start, unsigned int stop )
+{
+  if ( start > stop ) {
+    unsigned int temp = start;
+    start = stop;
+    stop = temp;
+  }
+  for ( unsigned int i = start; i < stop; i++ ) data[i] = 0;
 }
 
 

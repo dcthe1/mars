@@ -1,9 +1,12 @@
 
+#include "vm.h"
+#include "coreio.h"
+#include "util/debug.h"
+#include "vm/vmtypes.h"
+
 #include <limits.h>
-#include <assert.h>
 #include <iostream>
 
-#include "vm.h"
 
 #define incPC(num) pc+=num
 #define incSP(num) sp+=num
@@ -12,21 +15,24 @@
 #define intRef(index) (*((vmInt*)&data[index]))
 
 #define readUInt(index) (*((vmUInt*)&data[index]))
+#define uintRef(index) (*((vmUInt*)&data[index]))
 
 #define readSByte(index) (*((vmSByte*)&data[index]))
 #define sbyteRef(index) (*((vmSByte*)&data[index]))
 
-#define readByte(index) (data[index])
+//#define readByte(index) (data[index])
 #define byteRef(index) (data[index])
 
 #define isValidIntMemPos(index) (index+sizeof(vmInt)<memsize)
 
 #define callInterrupt(intType) m_pc=pc;m_sp=sp;interrupt(intType);pc=m_pc;sp=m_sp
 
+
 namespace vm
 {
 
-VM::VM( Memory& memory, unsigned int cpu_speed, unsigned int sp ) :
+VM::VM( Memory& memory, unsigned int cpu_speed, unsigned int sp, CoreIO& coreio ) :
+  m_coreio(coreio),
   m_memory(memory),
   m_speed(cpu_speed),
   m_pc(0),
@@ -99,7 +105,6 @@ void VM::load( std::istream& data )
 	data.read( (char*)&bos, sizeof(unsigned int) );
 	data.read( (char*)&sp, sizeof(unsigned int) );
 	data.read( (char*)&memSize, sizeof(unsigned int) );
-	//data >> pc >> bos >> sp >> memSize;
 
 	if ( !data.good() ) throw std::runtime_error("Could not read header.");
 
@@ -127,14 +132,14 @@ void nop()
 
 void VM::update()
 {
-	m_time_left += m_speed;
-
-	unsigned int memsize = m_memory.size();;
-	vmByte* data = m_memory.data;
-	vmUInt pos;
-	int time_left = m_time_left;
+	unsigned int memsize = m_memory.size();
 	unsigned int pc = m_pc;
 	unsigned int sp = m_sp;
+	int time_left = m_time_left + m_speed;
+	vmByte* data = m_memory.data;
+	vmUInt pos;
+
+	m_time_left = time_left;
 
 	while ( time_left-- > 0 ) {
 
@@ -328,7 +333,8 @@ void VM::update()
 /* --------------------------------------- PORT GROUP ------------------------------------- */
 
 			case 52: // port_r
-				nop();
+				byteRef(sp-sizeof(vmUInt)) = m_coreio.readByte( readUInt(sp-sizeof(vmUInt)) );
+				incSP(sizeof(vmSByte)-sizeof(vmInt));
 			break;
 			case 53: // port_w
 				nop();
@@ -582,8 +588,10 @@ void VM::update()
 
 		}
 
-		pc = pc<memsize?pc:0;
-		sp = sp<memsize?sp:0;
+    if ( pc >= memsize ) pc = 0;
+    if ( sp >= memsize ) sp = 0;
+		//pc = pc<memsize?pc:0;
+		//sp = sp<memsize?sp:0;
 
 	}
 

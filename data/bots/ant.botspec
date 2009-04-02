@@ -1,0 +1,33 @@
+
+botspec:
+{
+	botspecVersion = 1;
+	modelName = "Ant";
+	chassi = "Larva";
+	weight = 100;
+	armour = "none";
+	health = 20;
+	memory = 1024;
+	cpuspeed = 10;
+
+	parts = (
+		{
+			type = "TrackedEngine";
+			alias = "Engine";
+			maxForwardSpeed = 8.0;
+			maxReverseSpeed = 2.0;
+			acceleration = 0.2;
+		},
+		{
+			type = "ProximitySensor";
+			alias = "Proxi";
+			range = 1.0;
+		},
+		{
+			type = "GPS";
+		}
+
+	);
+
+};
+

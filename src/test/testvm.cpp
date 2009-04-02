@@ -2,11 +2,11 @@
 #include <fstream>
 
 #include "vm/vm.h"
-#include "bot/memory.h"
+#include "vm/coreio.h"
+#include "vm/memory.h"
 #include "testlib.h"
 
 using namespace vm;
-using namespace bot;
 using namespace test;
 
 void testInstructionsICONST();
@@ -29,7 +29,8 @@ void testVM()
 	printTestStart("Constructor()");
 	Memory m(10);
 	m.clear();
-	VM vm( m, 1, 6 ); // sp = 6
+	CoreIO core;
+	VM vm( m, 1, 6, core); // sp = 6
 	printTestResult( (vm.getSP() == 6) && (vm.getCPUSpeed() == 1) && (vm.getPC() == 0) );
 
 	printTestStart("reset(pc,sp)");
@@ -128,7 +129,8 @@ void testInstructionsICONST()
 	printTestName("ICONST instructions");
 
 	Memory m(100);
-	VM vm( m, 1, 6 );
+	CoreIO core;
+	VM vm( m, 1, 6, core );
 
 	printTestStart("iconst");
 	success = true;
@@ -186,7 +188,8 @@ void testInstructionsILOAD()
 	printTestName("ILOAD instructions");
 
 	Memory m(100);
-	VM vm( m, 1, 10 );
+	CoreIO core;
+	VM vm( m, 1, 10, core );
 
 	printTestStart("iload_b");
 	success = true;
@@ -258,7 +261,8 @@ void testInstructionsSTACK()
 	printTestName("STACK instructions");
 
 	Memory m(100);
-	VM vm( m, 1, 10 );
+	CoreIO core;
+	VM vm( m, 1, 10, core );
 
 	printTestStart("pop");
 	success = true;
@@ -313,7 +317,8 @@ void testInstructionsJUMP()
 	printTestName("JUMP instructions");
 
 	Memory m(100);
-	VM vm( m, 1, 10 );
+  CoreIO core;
+	VM vm( m, 1, 10, core );
 
 	printTestStart("goto_b");
 	success = true;
@@ -355,7 +360,8 @@ void testInstructionsIOPS()
 	printTestName("IOPS instructions");
 
 	Memory m(100);
-	VM vm( m, 1, 10 );
+	CoreIO core;
+	VM vm( m, 1, 10, core );
 
 	printTestStart("iadd");
 	success = true;
@@ -460,7 +466,8 @@ void testInstructionsCMP()
 	printTestName("CMP instructions");
 
 	Memory m(100);
-	VM vm( m, 1, 10 );
+	CoreIO core;
+	VM vm( m, 1, 10, core );
 
 	printTestStart("icmp");
 	success = true;
@@ -498,5 +505,30 @@ void testInstructionsCMP()
 	printTestResult( success );
 
 	printTestResult();
+}
+
+
+void testInstructionsPORT()
+{
+	/*bool success;
+	printTestName("PORT instructions");
+
+	Memory m(100);
+	CoreIO core;
+	VM vm( m, 1, 10, core );
+  core.setVM(&vm);
+
+	printTestStart("port_r");
+	success = true;
+	m.clear();
+	vm.reset(0,6);
+	vm.setSP(10);
+	m.writeByte(0,62);
+	m.writeInt(6,100);
+	vm.update();
+	if ( !vmState(vm,1,7) || !readSByte(m,6,1) ) success = false;
+	printTestResult( success );
+
+	printTestResult();*/
 }
 
